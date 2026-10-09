@@ -1,0 +1,88 @@
+---
+title: "Project 2 — NYC Housing Prices"
+author: "Patricio Romero"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: flatly
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Introduction
+
+For Project 2, I reviewed the datasets presented in the Week 5 Discussion 5A posts. These posts were used to identify three different datasets that could be prepared and analyzed independently.
+
+This report focuses on the NYC Housing Average Prices dataset. The dataset was selected to examine housing prices in New York City and identify differences across the available geographic areas.
+
+Housing prices are an important economic topic because they affect housing affordability and the cost of living. Analyzing housing price data can help identify patterns and differences in the New York City housing market.
+
+## Dataset Selection
+
+The NYC Housing Average Prices dataset was selected as the third of the three datasets required for Project 2.
+
+Discussion 5A was used to identify the dataset. The original CSV file will be preserved, and the tidying, transformation, and analysis will be completed as part of Project 2.
+
+The objective is to organize the housing price information into a tidy structure that makes it easier to compare average prices across the available boroughs and time periods.
+
+## Data Source
+
+**Dataset:** NYC Housing Average Prices  
+**Original file:** NYC_Housing_Average_Prices_Wide.csv  
+**File format:** CSV  
+**Dataset category:** Housing and Real Estate Data
+
+The original CSV file is stored in:
+
+```text
+Data /NYC_Housing_Average_Prices_Wide.csv
+```
+
+The original publisher and official dataset webpage will be documented after verifying the source.
+
+## Approach
+
+The purpose of this analysis is to compare average housing prices across New York City boroughs and examine differences in housing prices over time.
+
+The original data will be imported from the CSV file. I will use `dplyr` to select the required variables, standardize column names, convert housing price fields to numeric values, and address missing or inconsistent observations.
+
+I will review the original wide-format dataset to identify the columns containing housing price measurements and the variables identifying boroughs or time periods.
+
+I will then use `pivot_longer()` from the `tidyr` package to transform the appropriate columns into a tidy structure.
+
+The transformed dataset will organize the housing price observations into variables that can be used for comparison and analysis. All analysis and visualizations will use the transformed dataset.
+
+### Business Questions
+
+This analysis will address two questions:
+
+1. How do average housing prices vary across the five New York City boroughs?
+2. Which New York City borough has experienced the greatest change in average housing prices over time?
+
+### Planned Analysis
+
+The analysis will include:
+
+- A review of the available housing price data.
+- A comparison of average housing prices across the five New York City boroughs.
+- A calculation of summary statistics for housing prices.
+- An examination of housing price changes over time, if multiple periods are available.
+- An identification of the borough with the greatest housing price change, if supported by the data.
+- Two or three clearly labeled visualizations created with `ggplot2`.
+- A brief interpretation of the principal findings.
+
+### Expected Outcome
+
+The analysis will help identify differences in average housing prices across New York City boroughs.
+
+If the dataset contains multiple time periods, the analysis will also examine how housing prices have changed over time and which borough experienced the greatest change.
+
+The results will demonstrate how transforming a wide-format dataset into a tidy structure makes housing price data easier to organize, compare, and analyze.
+
+## AI Use
+
+ChatGPT was used to help interpret the assignment requirements, organize the planned approach, improve the English writing, and provide guidance for the R code. I will run, review, and verify the data transformations, analysis, visualizations, and final conclusions.
