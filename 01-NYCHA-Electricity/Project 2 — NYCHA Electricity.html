@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Patricio Romero">
-<meta name="dcterms.date" content="2026-10-08">
+<meta name="dcterms.date" content="2026-10-10">
 
 <title>Project 2 — NYCHA Electricity</title>
 <style>
@@ -24,6 +24,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -60,6 +95,44 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#planned-analysis" id="toc-planned-analysis" class="nav-link" data-scroll-target="#planned-analysis">Planned Analysis</a></li>
   <li><a href="#expected-outcome" id="toc-expected-outcome" class="nav-link" data-scroll-target="#expected-outcome">Expected Outcome</a></li>
   </ul></li>
+  <li><a href="#data-loading-and-initial-exploration" id="toc-data-loading-and-initial-exploration" class="nav-link" data-scroll-target="#data-loading-and-initial-exploration">Data Loading and Initial Exploration</a>
+  <ul class="collapse">
+  <li><a href="#initial-dataset-summary" id="toc-initial-dataset-summary" class="nav-link" data-scroll-target="#initial-dataset-summary">Initial Dataset Summary</a></li>
+  </ul></li>
+  <li><a href="#data-cleaning-and-preparation" id="toc-data-cleaning-and-preparation" class="nav-link" data-scroll-target="#data-cleaning-and-preparation">Data Cleaning and Preparation</a>
+  <ul class="collapse">
+  <li><a href="#missing-values-assessment" id="toc-missing-values-assessment" class="nav-link" data-scroll-target="#missing-values-assessment">Missing Values Assessment</a></li>
+  <li><a href="#borough-validation" id="toc-borough-validation" class="nav-link" data-scroll-target="#borough-validation">Borough Validation</a></li>
+  <li><a href="#preparing-the-analytical-dataset" id="toc-preparing-the-analytical-dataset" class="nav-link" data-scroll-target="#preparing-the-analytical-dataset">Preparing the Analytical Dataset</a></li>
+  <li><a href="#cleaning-summary" id="toc-cleaning-summary" class="nav-link" data-scroll-target="#cleaning-summary">Cleaning Summary</a></li>
+  </ul></li>
+  <li><a href="#data-transformation-wide-to-long" id="toc-data-transformation-wide-to-long" class="nav-link" data-scroll-target="#data-transformation-wide-to-long">Data Transformation: Wide to Long</a>
+  <ul class="collapse">
+  <li><a href="#monthly-electricity-consumption" id="toc-monthly-electricity-consumption" class="nav-link" data-scroll-target="#monthly-electricity-consumption">Monthly Electricity Consumption</a></li>
+  <li><a href="#creating-the-wide-format-dataset" id="toc-creating-the-wide-format-dataset" class="nav-link" data-scroll-target="#creating-the-wide-format-dataset">Creating the Wide-Format Dataset</a></li>
+  <li><a href="#converting-wide-data-to-long-data" id="toc-converting-wide-data-to-long-data" class="nav-link" data-scroll-target="#converting-wide-data-to-long-data">Converting Wide Data to Long Data</a></li>
+  <li><a href="#transformation-validation" id="toc-transformation-validation" class="nav-link" data-scroll-target="#transformation-validation">Transformation Validation</a></li>
+  <li><a href="#transformation-summary" id="toc-transformation-summary" class="nav-link" data-scroll-target="#transformation-summary">Transformation Summary</a></li>
+  </ul></li>
+  <li><a href="#business-question-1-electricity-consumption-by-borough-and-over-time" id="toc-business-question-1-electricity-consumption-by-borough-and-over-time" class="nav-link" data-scroll-target="#business-question-1-electricity-consumption-by-borough-and-over-time">Business Question 1: Electricity Consumption by Borough and Over Time</a>
+  <ul class="collapse">
+  <li><a href="#total-and-average-electricity-consumption-by-borough" id="toc-total-and-average-electricity-consumption-by-borough" class="nav-link" data-scroll-target="#total-and-average-electricity-consumption-by-borough">Total and Average Electricity Consumption by Borough</a></li>
+  <li><a href="#visualization-1-total-electricity-consumption-by-borough" id="toc-visualization-1-total-electricity-consumption-by-borough" class="nav-link" data-scroll-target="#visualization-1-total-electricity-consumption-by-borough">Visualization 1: Total Electricity Consumption by Borough</a></li>
+  <li><a href="#monthly-electricity-consumption-trends" id="toc-monthly-electricity-consumption-trends" class="nav-link" data-scroll-target="#monthly-electricity-consumption-trends">Monthly Electricity Consumption Trends</a></li>
+  <li><a href="#interpretation-of-business-question-1" id="toc-interpretation-of-business-question-1" class="nav-link" data-scroll-target="#interpretation-of-business-question-1">Interpretation of Business Question 1</a></li>
+  </ul></li>
+  <li><a href="#business-question-2-electricity-consumption-and-electricity-cost" id="toc-business-question-2-electricity-consumption-and-electricity-cost" class="nav-link" data-scroll-target="#business-question-2-electricity-consumption-and-electricity-cost">Business Question 2: Electricity Consumption and Electricity Cost</a>
+  <ul class="collapse">
+  <li><a href="#monthly-electricity-consumption-and-cost" id="toc-monthly-electricity-consumption-and-cost" class="nav-link" data-scroll-target="#monthly-electricity-consumption-and-cost">Monthly Electricity Consumption and Cost</a></li>
+  <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis">Correlation Analysis</a></li>
+  <li><a href="#visualization-3-electricity-consumption-vs.-electricity-cost" id="toc-visualization-3-electricity-consumption-vs.-electricity-cost" class="nav-link" data-scroll-target="#visualization-3-electricity-consumption-vs.-electricity-cost">Visualization 3: Electricity Consumption vs.&nbsp;Electricity Cost</a></li>
+  <li><a href="#electricity-cost-summary-by-borough" id="toc-electricity-cost-summary-by-borough" class="nav-link" data-scroll-target="#electricity-cost-summary-by-borough">Electricity Cost Summary by Borough</a></li>
+  <li><a href="#interpretation-of-business-question-2" id="toc-interpretation-of-business-question-2" class="nav-link" data-scroll-target="#interpretation-of-business-question-2">Interpretation of Business Question 2</a></li>
+  </ul></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a>
+  <ul class="collapse">
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  </ul></li>
   <li><a href="#ai-use" id="toc-ai-use" class="nav-link" data-scroll-target="#ai-use">AI Use</a></li>
   </ul>
 </nav>
@@ -85,7 +158,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 8, 2026</p>
+      <p class="date">October 10, 2026</p>
     </div>
   </div>
   
@@ -115,7 +188,7 @@ ul.task-list li input[type="checkbox"] {
 <strong>Official source:</strong> NYC Open Data<br>
 <strong>Dataset webpage:</strong> <a href="https://data.cityofnewyork.us/d/jr24-e7cr">Electric Consumption and Cost</a></p>
 <p>The original CSV file is stored in:</p>
-<pre class="text"><code>data/NYCHA_Electric_Consumption_And_Cost.csv</code></pre>
+<pre class="text"><code>Data /NYCHA_Electric_Consumption_And_Cost.csv</code></pre>
 </section>
 <section id="approach" class="level2">
 <h2 class="anchored" data-anchor-id="approach">Approach</h2>
@@ -147,9 +220,1193 @@ ul.task-list li input[type="checkbox"] {
 <p>The analysis will show how electricity consumption differs among the five New York City boroughs and changes over time. It will also examine whether higher electricity consumption is associated with higher electricity cost.</p>
 </section>
 </section>
+<section id="data-loading-and-initial-exploration" class="level2">
+<h2 class="anchored" data-anchor-id="data-loading-and-initial-exploration">Data Loading and Initial Exploration</h2>
+<p>I first loaded the NYCHA dataset into R to check its size, columns, and data types.</p>
+<p>The original CSV file was not changed.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the required packages</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import the original dataset</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>nycha <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Data /NYCHA_Electric_Consumption_And_Cost.csv"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the number of rows and columns</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(nycha)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 553666     27</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the column names</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(nycha)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Development Name"   "Borough"            "Account Name"      
+ [4] "Location"           "Meter AMR"          "Meter Scope"       
+ [7] "TDS #"              "EDP"                "RC Code"           
+[10] "Funding Source"     "AMP #"              "Vendor Name"       
+[13] "UMIS BILL ID"       "Revenue Month"      "Service Start Date"
+[16] "Service End Date"   "# days"             "Meter Number"      
+[19] "Estimated"          "Current Charges"    "Rate Class"        
+[22] "Bill Analyzed"      "Consumption (KWH)"  "KWH Charges"       
+[25] "Consumption (KW)"   "KW Charges"         "Other charges"     </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview the first five observations</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nycha, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 27
+  `Development Name` Borough `Account Name` Location `Meter AMR` `Meter Scope`
+  &lt;chr&gt;              &lt;chr&gt;   &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;        
+1 ADAMS              BRONX   ADAMS          BLD 05   NONE        BLD 01 to 07 
+2 ADAMS              BRONX   ADAMS          BLD 05   NONE        BLD 01 to 07 
+3 ADAMS              BRONX   ADAMS          BLD 05   NONE        BLD 01 to 07 
+4 ADAMS              BRONX   ADAMS          BLD 05   NONE        BLD 01 to 07 
+5 ADAMS              BRONX   ADAMS          BLD 05   NONE        BLD 01 to 07 
+# ℹ 21 more variables: `TDS #` &lt;dbl&gt;, EDP &lt;dbl&gt;, `RC Code` &lt;chr&gt;,
+#   `Funding Source` &lt;chr&gt;, `AMP #` &lt;chr&gt;, `Vendor Name` &lt;chr&gt;,
+#   `UMIS BILL ID` &lt;dbl&gt;, `Revenue Month` &lt;chr&gt;, `Service Start Date` &lt;chr&gt;,
+#   `Service End Date` &lt;chr&gt;, `# days` &lt;dbl&gt;, `Meter Number` &lt;chr&gt;,
+#   Estimated &lt;chr&gt;, `Current Charges` &lt;dbl&gt;, `Rate Class` &lt;chr&gt;,
+#   `Bill Analyzed` &lt;chr&gt;, `Consumption (KWH)` &lt;dbl&gt;, `KWH Charges` &lt;dbl&gt;,
+#   `Consumption (KW)` &lt;dbl&gt;, `KW Charges` &lt;dbl&gt;, `Other charges` &lt;dbl&gt;</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine the dataset structure</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(nycha)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 553,666
+Columns: 27
+$ `Development Name`   &lt;chr&gt; "ADAMS", "ADAMS", "ADAMS", "ADAMS", "ADAMS", "ADA…
+$ Borough              &lt;chr&gt; "BRONX", "BRONX", "BRONX", "BRONX", "BRONX", "BRO…
+$ `Account Name`       &lt;chr&gt; "ADAMS", "ADAMS", "ADAMS", "ADAMS", "ADAMS", "ADA…
+$ Location             &lt;chr&gt; "BLD 05", "BLD 05", "BLD 05", "BLD 05", "BLD 05",…
+$ `Meter AMR`          &lt;chr&gt; "NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "…
+$ `Meter Scope`        &lt;chr&gt; "BLD 01 to 07", "BLD 01 to 07", "BLD 01 to 07", "…
+$ `TDS #`              &lt;dbl&gt; 118, 118, 118, 118, 118, 118, 118, 118, 118, 118,…
+$ EDP                  &lt;dbl&gt; 248, 248, 248, 248, 248, 248, 248, 248, 248, 248,…
+$ `RC Code`            &lt;chr&gt; "B011800", "B011800", "B011800", "B011800", "B011…
+$ `Funding Source`     &lt;chr&gt; "FEDERAL", "FEDERAL", "FEDERAL", "FEDERAL", "FEDE…
+$ `AMP #`              &lt;chr&gt; "NY005001180P", "NY005001180P", "NY005001180P", "…
+$ `Vendor Name`        &lt;chr&gt; "NEW YORK POWER AUTHORITY", "NEW YORK POWER AUTHO…
+$ `UMIS BILL ID`       &lt;dbl&gt; 1842037, 1844205, 1841378, 1847148, 1848672, 1850…
+$ `Revenue Month`      &lt;chr&gt; "2010-01", "2010-02", "2010-03", "2010-04", "2010…
+$ `Service Start Date` &lt;chr&gt; "12/24/2009", "01/26/2010", "02/25/2010", "03/26/…
+$ `Service End Date`   &lt;chr&gt; "01/26/2010", "02/25/2010", "03/26/2010", "04/26/…
+$ `# days`             &lt;dbl&gt; 33, 30, 29, 31, 28, 30, 30, 31, 30, 30, 31, 31, 3…
+$ `Meter Number`       &lt;chr&gt; "7223256", "7223256", "7223256", "7223256", "7223…
+$ Estimated            &lt;chr&gt; "N", "N", "N", "N", "N", "N", "N", "N", "N", "N",…
+$ `Current Charges`    &lt;dbl&gt; 15396.82, 14556.34, 13904.98, 14764.04, 13729.54,…
+$ `Rate Class`         &lt;chr&gt; "GOV/NYC/068", "GOV/NYC/068", "GOV/NYC/068", "GOV…
+$ `Bill Analyzed`      &lt;chr&gt; "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", …
+$ `Consumption (KWH)`  &lt;dbl&gt; 128800, 115200, 103200, 105600, 97600, 124000, 15…
+$ `KWH Charges`        &lt;dbl&gt; 7387.97, 6607.87, 5919.55, 6057.22, 5598.34, 7112…
+$ `Consumption (KW)`   &lt;dbl&gt; 216, 224, 216, 208, 216, 240, 296, 272, 280, 224,…
+$ `KW Charges`         &lt;dbl&gt; 2808, 2912, 2808, 2704, 2808, 3120, 3848, 3536, 3…
+$ `Other charges`      &lt;dbl&gt; 5200.85, 5036.47, 5177.43, 6002.82, 5323.20, 6456…</code></pre>
+</div>
+</div>
+<section id="initial-dataset-summary" class="level3">
+<h3 class="anchored" data-anchor-id="initial-dataset-summary">Initial Dataset Summary</h3>
+<p>The original NYCHA dataset contains 553,666 observations and 27 variables. These records include information about housing developments, electricity billing periods, electricity consumption, and associated costs.</p>
+<p>This check helped identify the columns needed for the analysis.</p>
+</section>
+</section>
+<section id="data-cleaning-and-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-cleaning-and-preparation">Data Cleaning and Preparation</h2>
+<p>The NYCHA Electricity dataset contains 27 variables and 553,666 observations. For this analysis, I selected the variables related to housing developments, boroughs, billing periods, electricity consumption, and electricity costs.</p>
+<p>I renamed the selected columns, checked for missing values, and prepared the numbers for analysis.</p>
+<p>The original CSV file remains unchanged.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select and rename the variables needed for the analysis</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>nycha_clean <span class="ot">&lt;-</span> nycha <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">development_name =</span> <span class="st">`</span><span class="at">Development Name</span><span class="st">`</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">borough =</span> Borough,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue_month =</span> <span class="st">`</span><span class="at">Revenue Month</span><span class="st">`</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">bill_id =</span> <span class="st">`</span><span class="at">UMIS BILL ID</span><span class="st">`</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">consumption_kwh =</span> readr<span class="sc">::</span><span class="fu">parse_number</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.character</span>(<span class="st">`</span><span class="at">Consumption (KWH)</span><span class="st">`</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">current_charges =</span> readr<span class="sc">::</span><span class="fu">parse_number</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.character</span>(<span class="st">`</span><span class="at">Current Charges</span><span class="st">`</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">kwh_charges =</span> readr<span class="sc">::</span><span class="fu">parse_number</span>(</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.character</span>(<span class="st">`</span><span class="at">KWH Charges</span><span class="st">`</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine the cleaned dataset</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(nycha_clean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 553,666
+Columns: 7
+$ development_name &lt;chr&gt; "ADAMS", "ADAMS", "ADAMS", "ADAMS", "ADAMS", "ADAMS",…
+$ borough          &lt;chr&gt; "BRONX", "BRONX", "BRONX", "BRONX", "BRONX", "BRONX",…
+$ revenue_month    &lt;chr&gt; "2010-01", "2010-02", "2010-03", "2010-04", "2010-05"…
+$ bill_id          &lt;dbl&gt; 1842037, 1844205, 1841378, 1847148, 1848672, 1850070,…
+$ consumption_kwh  &lt;dbl&gt; 128800, 115200, 103200, 105600, 97600, 124000, 156000…
+$ current_charges  &lt;dbl&gt; 15396.82, 14556.34, 13904.98, 14764.04, 13729.54, 166…
+$ kwh_charges      &lt;dbl&gt; 7387.97, 6607.87, 5919.55, 6057.22, 5598.34, 7112.64,…</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the first five observations</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nycha_clean, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 7
+  development_name borough revenue_month bill_id consumption_kwh current_charges
+  &lt;chr&gt;            &lt;chr&gt;   &lt;chr&gt;           &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+1 ADAMS            BRONX   2010-01       1842037          128800          15397.
+2 ADAMS            BRONX   2010-02       1844205          115200          14556.
+3 ADAMS            BRONX   2010-03       1841378          103200          13905.
+4 ADAMS            BRONX   2010-04       1847148          105600          14764.
+5 ADAMS            BRONX   2010-05       1848672           97600          13730.
+# ℹ 1 more variable: kwh_charges &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<section id="missing-values-assessment" class="level3">
+<h3 class="anchored" data-anchor-id="missing-values-assessment">Missing Values Assessment</h3>
+<p>I checked the selected columns for missing values.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count missing values for each variable</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>missing_summary <span class="ot">&lt;-</span> nycha_clean <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">everything</span>(),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      <span class="sc">~</span><span class="fu">sum</span>(<span class="fu">is.na</span>(.))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"variable"</span>,</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"missing_count"</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Display missing values</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  missing_summary,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Variable"</span>, <span class="st">"Missing Values"</span>),</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Missing Values by Variable"</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Missing Values by Variable</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: right;">Missing Values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">development_name</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">borough</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">revenue_month</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bill_id</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">consumption_kwh</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">current_charges</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">kwh_charges</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="borough-validation" class="level3">
+<h3 class="anchored" data-anchor-id="borough-validation">Borough Validation</h3>
+<p>I checked the borough names before selecting the five NYC boroughs.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count records by borough</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>borough_summary <span class="ot">&lt;-</span> nycha_clean <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(borough, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  borough_summary,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Borough"</span>, <span class="st">"Number of Records"</span>),</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Number of Records by Borough"</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Number of Records by Borough</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Borough</th>
+<th style="text-align: right;">Number of Records</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">212402</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">141415</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">125657</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">64276</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">4143</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NON DEVELOPMENT FACILITY</td>
+<td style="text-align: right;">3729</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">FHA</td>
+<td style="text-align: right;">2044</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="preparing-the-analytical-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="preparing-the-analytical-dataset">Preparing the Analytical Dataset</h3>
+<p>I kept records from the five NYC boroughs with valid electricity use and cost values.</p>
+<p>The original data was kept unchanged.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare the analytical dataset</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>nycha_analysis <span class="ot">&lt;-</span> nycha_clean <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">borough =</span> <span class="fu">toupper</span>(<span class="fu">trimws</span>(borough))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    borough <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"BRONX"</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">"BROOKLYN"</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"MANHATTAN"</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"QUEENS"</span>,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"STATEN ISLAND"</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(consumption_kwh),</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(current_charges),</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.finite</span>(consumption_kwh),</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.finite</span>(current_charges),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    consumption_kwh <span class="sc">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare original and retained observations</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>cleaning_summary <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataset =</span> <span class="fu">c</span>(<span class="st">"Selected Data"</span>, <span class="st">"Analytical Data"</span>),</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">observations =</span> <span class="fu">c</span>(</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>(nycha_clean),</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>(nycha_analysis)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  cleaning_summary,</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Dataset"</span>, <span class="st">"Records"</span>),</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Data Cleaning Summary"</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data Cleaning Summary</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dataset</th>
+<th style="text-align: right;">Records</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Selected Data</td>
+<td style="text-align: right;">553666</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Analytical Data</td>
+<td style="text-align: right;">547893</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="cleaning-summary" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-summary">Cleaning Summary</h3>
+<p>After cleaning, 547,893 records remained for analysis.</p>
+<p>I used these records to compare electricity use and cost.</p>
+</section>
+</section>
+<section id="data-transformation-wide-to-long" class="level2">
+<h2 class="anchored" data-anchor-id="data-transformation-wide-to-long">Data Transformation: Wide to Long</h2>
+<p>I organized the monthly electricity data into wide and long formats.</p>
+<p>In the wide table, each borough has its own column.</p>
+<p>I used <code>pivot_longer()</code> to put the borough names and electricity values into two columns.</p>
+<p>The long table is easier to use for charts.</p>
+<section id="monthly-electricity-consumption" class="level3">
+<h3 class="anchored" data-anchor-id="monthly-electricity-consumption">Monthly Electricity Consumption</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate monthly electricity consumption by borough</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>monthly_consumption <span class="ot">&lt;-</span> nycha_analysis <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(revenue_month, borough) <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_kwh =</span> <span class="fu">sum</span>(consumption_kwh, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the first observations</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(monthly_consumption, <span class="dv">10</span>),</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Month"</span>, <span class="st">"Borough"</span>, <span class="st">"Electricity (kWh)"</span>),</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Monthly Electricity Consumption by Borough"</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Monthly Electricity Consumption by Borough</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Month</th>
+<th style="text-align: left;">Borough</th>
+<th style="text-align: right;">Electricity (kWh)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">26765002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">33928541</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">30656612</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">9501068</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">3009634</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">23581086</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">29480943</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">26832805</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">8368548</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">2647908</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="creating-the-wide-format-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="creating-the-wide-format-dataset">Creating the Wide-Format Dataset</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform the monthly data into wide format</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>nycha_wide <span class="ot">&lt;-</span> monthly_consumption <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> borough,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> total_kwh</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(revenue_month)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the wide-format dataset</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(nycha_wide, <span class="dv">10</span>),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Month"</span>, <span class="st">"Bronx"</span>, <span class="st">"Brooklyn"</span>, <span class="st">"Manhattan"</span>, <span class="st">"Queens"</span>, <span class="st">"Staten Island"</span>),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Wide-Format Electricity Consumption Dataset"</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Wide-Format Electricity Consumption Dataset</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Month</th>
+<th style="text-align: right;">Bronx</th>
+<th style="text-align: right;">Brooklyn</th>
+<th style="text-align: right;">Manhattan</th>
+<th style="text-align: right;">Queens</th>
+<th style="text-align: right;">Staten Island</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: right;">26765002</td>
+<td style="text-align: right;">33928541</td>
+<td style="text-align: right;">30656612</td>
+<td style="text-align: right;">9501068</td>
+<td style="text-align: right;">3009634</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: right;">23581086</td>
+<td style="text-align: right;">29480943</td>
+<td style="text-align: right;">26832805</td>
+<td style="text-align: right;">8368548</td>
+<td style="text-align: right;">2647908</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-03</td>
+<td style="text-align: right;">22213157</td>
+<td style="text-align: right;">27885320</td>
+<td style="text-align: right;">25712414</td>
+<td style="text-align: right;">8136467</td>
+<td style="text-align: right;">2354075</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-04</td>
+<td style="text-align: right;">22084746</td>
+<td style="text-align: right;">28604105</td>
+<td style="text-align: right;">25739077</td>
+<td style="text-align: right;">8098016</td>
+<td style="text-align: right;">2245797</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-05</td>
+<td style="text-align: right;">22729296</td>
+<td style="text-align: right;">27145995</td>
+<td style="text-align: right;">26138619</td>
+<td style="text-align: right;">8810369</td>
+<td style="text-align: right;">2510650</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-06</td>
+<td style="text-align: right;">29475950</td>
+<td style="text-align: right;">35862456</td>
+<td style="text-align: right;">34584149</td>
+<td style="text-align: right;">10349353</td>
+<td style="text-align: right;">3215086</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-07</td>
+<td style="text-align: right;">39531115</td>
+<td style="text-align: right;">47766230</td>
+<td style="text-align: right;">45843344</td>
+<td style="text-align: right;">14948903</td>
+<td style="text-align: right;">4128253</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-08</td>
+<td style="text-align: right;">38492604</td>
+<td style="text-align: right;">47535216</td>
+<td style="text-align: right;">45489596</td>
+<td style="text-align: right;">15116398</td>
+<td style="text-align: right;">4082860</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-09</td>
+<td style="text-align: right;">29817501</td>
+<td style="text-align: right;">36379367</td>
+<td style="text-align: right;">34552552</td>
+<td style="text-align: right;">11725546</td>
+<td style="text-align: right;">3270162</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-10</td>
+<td style="text-align: right;">24922925</td>
+<td style="text-align: right;">31008322</td>
+<td style="text-align: right;">28097254</td>
+<td style="text-align: right;">8940865</td>
+<td style="text-align: right;">2659077</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="converting-wide-data-to-long-data" class="level3">
+<h3 class="anchored" data-anchor-id="converting-wide-data-to-long-data">Converting Wide Data to Long Data</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert wide-format data into tidy long format</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>nycha_long <span class="ot">&lt;-</span> nycha_wide <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>revenue_month,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"borough"</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"total_kwh"</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(revenue_month, borough)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the transformed dataset</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(nycha_long, <span class="dv">10</span>),</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Month"</span>, <span class="st">"Borough"</span>, <span class="st">"Electricity (kWh)"</span>),</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Long-Format Electricity Consumption Dataset"</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Long-Format Electricity Consumption Dataset</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Month</th>
+<th style="text-align: left;">Borough</th>
+<th style="text-align: right;">Electricity (kWh)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">26765002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">33928541</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">30656612</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">9501068</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">3009634</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">23581086</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">29480943</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">26832805</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">8368548</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">2647908</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="transformation-validation" class="level3">
+<h3 class="anchored" data-anchor-id="transformation-validation">Transformation Validation</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the number of rows</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>transformation_summary <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataset =</span> <span class="fu">c</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Monthly Aggregated Data"</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Wide-Format Data"</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Long-Format Data"</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">observations =</span> <span class="fu">c</span>(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>(monthly_consumption),</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>(nycha_wide),</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>(nycha_long)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  transformation_summary,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Dataset"</span>, <span class="st">"Records"</span>),</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Wide-to-Long Transformation Summary"</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Wide-to-Long Transformation Summary</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dataset</th>
+<th style="text-align: right;">Records</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Monthly Aggregated Data</td>
+<td style="text-align: right;">825</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Wide-Format Data</td>
+<td style="text-align: right;">165</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Long-Format Data</td>
+<td style="text-align: right;">825</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify that electricity consumption totals are preserved</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>validation <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">original_total_kwh =</span> <span class="fu">sum</span>(monthly_consumption<span class="sc">$</span>total_kwh),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">transformed_total_kwh =</span> <span class="fu">sum</span>(nycha_long<span class="sc">$</span>total_kwh, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">difference_kwh =</span> original_total_kwh <span class="sc">-</span> transformed_total_kwh</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  validation,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Original (kWh)"</span>, <span class="st">"After Transformation (kWh)"</span>, <span class="st">"Difference (kWh)"</span>),</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Electricity Consumption Validation"</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Electricity Consumption Validation</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Original (kWh)</th>
+<th style="text-align: right;">After Transformation (kWh)</th>
+<th style="text-align: right;">Difference (kWh)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">16466065485</td>
+<td style="text-align: right;">16466065485</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="transformation-summary" class="level3">
+<h3 class="anchored" data-anchor-id="transformation-summary">Transformation Summary</h3>
+<p>Each row in the long table represents one borough in one month.</p>
+<p>Both tables contain the same electricity totals.</p>
+<p>The validation found a difference of 0 kWh.</p>
+</section>
+</section>
+<section id="business-question-1-electricity-consumption-by-borough-and-over-time" class="level2">
+<h2 class="anchored" data-anchor-id="business-question-1-electricity-consumption-by-borough-and-over-time">Business Question 1: Electricity Consumption by Borough and Over Time</h2>
+<p><strong>Research Question:</strong> How does electricity consumption vary across the five New York City boroughs and over time?</p>
+<p>To answer this question, I used the transformed long-format dataset to compare total and average monthly electricity consumption across the five boroughs. I also examined monthly consumption patterns to identify differences over time.</p>
+<section id="total-and-average-electricity-consumption-by-borough" class="level3">
+<h3 class="anchored" data-anchor-id="total-and-average-electricity-consumption-by-borough">Total and Average Electricity Consumption by Borough</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total and average monthly consumption by borough</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>borough_consumption <span class="ot">&lt;-</span> nycha_long <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(borough) <span class="sc">%&gt;%</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_consumption_kwh =</span> <span class="fu">sum</span>(total_kwh, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_monthly_kwh =</span> <span class="fu">mean</span>(total_kwh, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">months =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(total_kwh)),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_consumption_kwh))</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Display results</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  borough_consumption,</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Borough"</span>, <span class="st">"Total Electricity (kWh)"</span>, <span class="st">"Monthly Average (kWh)"</span>, <span class="st">"Months"</span>),</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Total and Average Monthly Electricity Consumption by Borough"</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Total and Average Monthly Electricity Consumption by Borough</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Borough</th>
+<th style="text-align: right;">Total Electricity (kWh)</th>
+<th style="text-align: right;">Monthly Average (kWh)</th>
+<th style="text-align: right;">Months</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">5429743216</td>
+<td style="text-align: right;">32907535</td>
+<td style="text-align: right;">165</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">4765841703</td>
+<td style="text-align: right;">28883889</td>
+<td style="text-align: right;">165</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">4300696913</td>
+<td style="text-align: right;">26064830</td>
+<td style="text-align: right;">165</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">1523393706</td>
+<td style="text-align: right;">9232689</td>
+<td style="text-align: right;">165</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">446389948</td>
+<td style="text-align: right;">2705394</td>
+<td style="text-align: right;">165</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="visualization-1-total-electricity-consumption-by-borough" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-1-total-electricity-consumption-by-borough">Visualization 1: Total Electricity Consumption by Borough</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a bar chart comparing electricity consumption</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  borough_consumption,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">reorder</span>(borough, total_consumption_kwh),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> total_consumption_kwh <span class="sc">/</span> <span class="fl">1e9</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> borough</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Electricity Use by Borough"</span>,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Borough"</span>,</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Electricity (billion kWh)"</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project-2-—-NYCHA-Electricity_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="monthly-electricity-consumption-trends" class="level3">
+<h3 class="anchored" data-anchor-id="monthly-electricity-consumption-trends">Monthly Electricity Consumption Trends</h3>
+<p>The next visualization examines how electricity consumption changes over time. Monthly consumption values are displayed separately for each borough.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert revenue month into a date</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>nycha_trends <span class="ot">&lt;-</span> nycha_long <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">month_date =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(revenue_month, <span class="st">"-01"</span>))</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a monthly consumption line chart</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  nycha_trends,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> month_date,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> total_kwh <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> borough</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Monthly Electricity Use"</span>,</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Electricity (million kWh)"</span>,</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Borough"</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project-2-—-NYCHA-Electricity_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation-of-business-question-1" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-of-business-question-1">Interpretation of Business Question 1</h3>
+<p>Brooklyn had the highest electricity use, about 5.43 billion kWh. Manhattan was next, followed by the Bronx. Queens and Staten Island used less electricity.</p>
+<p>The monthly chart shows how electricity use changed over time. Differences may be related to the number and size of NYCHA buildings in each borough.</p>
+</section>
+</section>
+<section id="business-question-2-electricity-consumption-and-electricity-cost" class="level2">
+<h2 class="anchored" data-anchor-id="business-question-2-electricity-consumption-and-electricity-cost">Business Question 2: Electricity Consumption and Electricity Cost</h2>
+<p><strong>Research Question:</strong> What is the relationship between electricity consumption and electricity cost?</p>
+<p>To answer this question, I examined the relationship between electricity consumption, measured in kilowatt-hours (kWh), and electricity charges, measured in US dollars.</p>
+<p>I aggregated the cleaned data by month and borough to compare monthly electricity consumption with monthly electricity costs. This approach helps determine whether higher electricity consumption is associated with higher charges.</p>
+<section id="monthly-electricity-consumption-and-cost" class="level3">
+<h3 class="anchored" data-anchor-id="monthly-electricity-consumption-and-cost">Monthly Electricity Consumption and Cost</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate monthly electricity consumption and charges by borough</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>monthly_cost <span class="ot">&lt;-</span> nycha_analysis <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(revenue_month, borough) <span class="sc">%&gt;%</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_consumption_kwh =</span> <span class="fu">sum</span>(consumption_kwh, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_cost_usd =</span> <span class="fu">sum</span>(current_charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(revenue_month, borough)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the first ten observations</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(monthly_cost, <span class="dv">10</span>),</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Month"</span>, <span class="st">"Borough"</span>, <span class="st">"Electricity (kWh)"</span>, <span class="st">"Cost (USD)"</span>),</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Monthly Electricity Consumption and Cost by Borough"</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Monthly Electricity Consumption and Cost by Borough</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Month</th>
+<th style="text-align: left;">Borough</th>
+<th style="text-align: right;">Electricity (kWh)</th>
+<th style="text-align: right;">Cost (USD)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">26765002</td>
+<td style="text-align: right;">3262095.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">33928541</td>
+<td style="text-align: right;">4173703.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">30656612</td>
+<td style="text-align: right;">3700233.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">9501068</td>
+<td style="text-align: right;">1155172.4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-01</td>
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">3009634</td>
+<td style="text-align: right;">378856.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">23581086</td>
+<td style="text-align: right;">2922307.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">29480943</td>
+<td style="text-align: right;">3679808.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">26832805</td>
+<td style="text-align: right;">3297540.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">8368548</td>
+<td style="text-align: right;">1038193.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-02</td>
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">2647908</td>
+<td style="text-align: right;">294590.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="correlation-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="correlation-analysis">Correlation Analysis</h3>
+<p>Pearson’s correlation coefficient is used to measure the strength and direction of the linear relationship between electricity consumption and electricity cost.</p>
+<p>A positive correlation indicates that higher consumption tends to be associated with higher electricity charges. However, correlation does not establish causation.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the correlation between consumption and cost</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>cost_correlation <span class="ot">&lt;-</span> monthly_cost <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">correlation =</span> <span class="fu">cor</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>      total_consumption_kwh,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>      total_cost_usd,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">use =</span> <span class="st">"complete.obs"</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  cost_correlation,</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Correlation"</span>),</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Correlation Between Electricity Consumption and Cost"</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Correlation Between Electricity Consumption and Cost</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Correlation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.9319</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="visualization-3-electricity-consumption-vs.-electricity-cost" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-3-electricity-consumption-vs.-electricity-cost">Visualization 3: Electricity Consumption vs.&nbsp;Electricity Cost</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot comparing consumption and cost</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  monthly_cost,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> total_consumption_kwh <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> total_cost_usd <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> borough</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"lm"</span>,</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"black"</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Electricity Use and Cost"</span>,</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Electricity (million kWh)"</span>,</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Cost (million USD)"</span>,</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Borough"</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project-2-—-NYCHA-Electricity_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="electricity-cost-summary-by-borough" class="level3">
+<h3 class="anchored" data-anchor-id="electricity-cost-summary-by-borough">Electricity Cost Summary by Borough</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total electricity charges by borough</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>borough_cost <span class="ot">&lt;-</span> monthly_cost <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(borough) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_consumption_kwh =</span> <span class="fu">sum</span>(total_consumption_kwh),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_charges_usd =</span> <span class="fu">sum</span>(total_cost_usd),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_monthly_cost_usd =</span> <span class="fu">mean</span>(total_cost_usd),</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_charges_usd))</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  borough_cost,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Borough"</span>, <span class="st">"Total Electricity (kWh)"</span>, <span class="st">"Total Cost (USD)"</span>, <span class="st">"Monthly Average Cost (USD)"</span>),</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Electricity Consumption and Cost Summary by Borough"</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Electricity Consumption and Cost Summary by Borough</caption>
+<colgroup>
+<col style="width: 17%">
+<col style="width: 29%">
+<col style="width: 20%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Borough</th>
+<th style="text-align: right;">Total Electricity (kWh)</th>
+<th style="text-align: right;">Total Cost (USD)</th>
+<th style="text-align: right;">Monthly Average Cost (USD)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BROOKLYN</td>
+<td style="text-align: right;">5429743216</td>
+<td style="text-align: right;">767550803</td>
+<td style="text-align: right;">4651823.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MANHATTAN</td>
+<td style="text-align: right;">4765841703</td>
+<td style="text-align: right;">690744229</td>
+<td style="text-align: right;">4186328.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BRONX</td>
+<td style="text-align: right;">4300696913</td>
+<td style="text-align: right;">617941543</td>
+<td style="text-align: right;">3745100.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">QUEENS</td>
+<td style="text-align: right;">1523393706</td>
+<td style="text-align: right;">227532740</td>
+<td style="text-align: right;">1378986.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">STATEN ISLAND</td>
+<td style="text-align: right;">446389948</td>
+<td style="text-align: right;">58551173</td>
+<td style="text-align: right;">354855.6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="interpretation-of-business-question-2" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-of-business-question-2">Interpretation of Business Question 2</h3>
+<p>Electricity use and cost had a strong positive relationship. The correlation was 0.9319, meaning higher electricity use was generally linked to higher costs.</p>
+<p>Brooklyn had the highest total electricity cost, about $767.55 million. Its average monthly cost was about $4.65 million.</p>
+<p>Electricity bills also depend on utility rates and other charges, so correlation does not prove causation.</p>
+</section>
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<p>This project studied NYCHA electricity use and cost in New York City. The original dataset had 553,666 records. After cleaning, 547,893 records were used.</p>
+<p>Brooklyn had the highest electricity use, followed by Manhattan and the Bronx. Electricity use and cost were strongly related, with a correlation of 0.9319.</p>
+<p>This project shows how R can help clean, organize, and understand real-world data.</p>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
+<p>The analysis does not include building size, occupancy, or weather. These factors may affect electricity use, so the results do not measure building efficiency.</p>
+</section>
+</section>
 <section id="ai-use" class="level2">
 <h2 class="anchored" data-anchor-id="ai-use">AI Use</h2>
-<p>ChatGPT was used to help interpret the assignment requirements, organize the planned approach, improve the English writing, and provide guidance for the R code. I downloaded the original data from the official source and will run, review, and verify the data transformations, analysis, visualizations, and final conclusions.</p>
+<p>I used ChatGPT to help organize the report, improve my English, and review the R code. I downloaded the original data from NYC Open Data and checked the tables and results.</p>
 </section>
 
 </main>

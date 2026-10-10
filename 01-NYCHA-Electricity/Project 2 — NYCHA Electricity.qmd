@@ -37,7 +37,7 @@ Discussion 5A was used to identify and describe the dataset. The actual data use
 The original CSV file is stored in:
 
 ```text
-data/NYCHA_Electric_Consumption_And_Cost.csv
+Data /NYCHA_Electric_Consumption_And_Cost.csv
 ```
 
 ## Approach
@@ -70,6 +70,499 @@ The analysis will include:
 
 The analysis will show how electricity consumption differs among the five New York City boroughs and changes over time. It will also examine whether higher electricity consumption is associated with higher electricity cost.
 
+## Data Loading and Initial Exploration
+
+I first loaded the NYCHA dataset into R to check its size, columns, and data types.
+
+The original CSV file was not changed.
+
+```{r}
+# Load the required packages
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Import the original dataset
+nycha <- read_csv(
+  "Data /NYCHA_Electric_Consumption_And_Cost.csv",
+  show_col_types = FALSE
+)
+
+# Display the number of rows and columns
+dim(nycha)
+
+# Display the column names
+names(nycha)
+
+# Preview the first five observations
+head(nycha, 5)
+
+# Examine the dataset structure
+glimpse(nycha)
+```
+
+### Initial Dataset Summary
+
+The original NYCHA dataset contains 553,666 observations and 27 variables. These records include information about housing developments, electricity billing periods, electricity consumption, and associated costs.
+
+This check helped identify the columns needed for the analysis.
+
+
+## Data Cleaning and Preparation
+
+The NYCHA Electricity dataset contains 27 variables and 553,666 observations. For this analysis, I selected the variables related to housing developments, boroughs, billing periods, electricity consumption, and electricity costs.
+
+I renamed the selected columns, checked for missing values, and prepared the numbers for analysis.
+
+The original CSV file remains unchanged.
+
+```{r}
+# Select and rename the variables needed for the analysis
+nycha_clean <- nycha %>%
+  transmute(
+    development_name = `Development Name`,
+    borough = Borough,
+    revenue_month = `Revenue Month`,
+    bill_id = `UMIS BILL ID`,
+    consumption_kwh = readr::parse_number(
+      as.character(`Consumption (KWH)`)
+    ),
+    current_charges = readr::parse_number(
+      as.character(`Current Charges`)
+    ),
+    kwh_charges = readr::parse_number(
+      as.character(`KWH Charges`)
+    )
+  )
+
+# Examine the cleaned dataset
+glimpse(nycha_clean)
+
+# Display the first five observations
+head(nycha_clean, 5)
+```
+
+### Missing Values Assessment
+
+I checked the selected columns for missing values.
+
+```{r}
+# Count missing values for each variable
+missing_summary <- nycha_clean %>%
+  summarise(
+    across(
+      everything(),
+      ~sum(is.na(.))
+    )
+  ) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "missing_count"
+  )
+
+# Display missing values
+knitr::kable(
+  missing_summary,
+  col.names = c("Variable", "Missing Values"),
+  caption = "Missing Values by Variable"
+)
+```
+
+### Borough Validation
+
+I checked the borough names before selecting the five NYC boroughs.
+
+```{r}
+# Count records by borough
+borough_summary <- nycha_clean %>%
+  count(borough, sort = TRUE)
+
+knitr::kable(
+  borough_summary,
+  col.names = c("Borough", "Number of Records"),
+  caption = "Number of Records by Borough"
+)
+```
+
+### Preparing the Analytical Dataset
+
+I kept records from the five NYC boroughs with valid electricity use and cost values.
+
+The original data was kept unchanged.
+
+```{r}
+# Prepare the analytical dataset
+nycha_analysis <- nycha_clean %>%
+  mutate(
+    borough = toupper(trimws(borough))
+  ) %>%
+  filter(
+    borough %in% c(
+      "BRONX",
+      "BROOKLYN",
+      "MANHATTAN",
+      "QUEENS",
+      "STATEN ISLAND"
+    ),
+    !is.na(consumption_kwh),
+    !is.na(current_charges),
+    is.finite(consumption_kwh),
+    is.finite(current_charges),
+    consumption_kwh >= 0
+  )
+
+# Compare original and retained observations
+cleaning_summary <- tibble(
+  dataset = c("Selected Data", "Analytical Data"),
+  observations = c(
+    nrow(nycha_clean),
+    nrow(nycha_analysis)
+  )
+)
+
+knitr::kable(
+  cleaning_summary,
+  col.names = c("Dataset", "Records"),
+  caption = "Data Cleaning Summary"
+)
+```
+
+### Cleaning Summary
+
+After cleaning, 547,893 records remained for analysis.
+
+I used these records to compare electricity use and cost.
+
+## Data Transformation: Wide to Long
+
+I organized the monthly electricity data into wide and long formats.
+
+In the wide table, each borough has its own column.
+
+I used `pivot_longer()` to put the borough names and electricity values into two columns.
+
+The long table is easier to use for charts.
+
+### Monthly Electricity Consumption
+
+```{r}
+# Calculate monthly electricity consumption by borough
+monthly_consumption <- nycha_analysis %>%
+  group_by(revenue_month, borough) %>%
+  summarise(
+    total_kwh = sum(consumption_kwh, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Display the first observations
+knitr::kable(
+  head(monthly_consumption, 10),
+  col.names = c("Month", "Borough", "Electricity (kWh)"),
+  caption = "Monthly Electricity Consumption by Borough"
+)
+```
+
+### Creating the Wide-Format Dataset
+
+```{r}
+# Transform the monthly data into wide format
+nycha_wide <- monthly_consumption %>%
+  pivot_wider(
+    names_from = borough,
+    values_from = total_kwh
+  ) %>%
+  arrange(revenue_month)
+
+# Display the wide-format dataset
+knitr::kable(
+  head(nycha_wide, 10),
+  col.names = c("Month", "Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"),
+  caption = "Wide-Format Electricity Consumption Dataset"
+)
+```
+
+### Converting Wide Data to Long Data
+
+```{r}
+# Convert wide-format data into tidy long format
+nycha_long <- nycha_wide %>%
+  pivot_longer(
+    cols = -revenue_month,
+    names_to = "borough",
+    values_to = "total_kwh"
+  ) %>%
+  arrange(revenue_month, borough)
+
+# Display the transformed dataset
+knitr::kable(
+  head(nycha_long, 10),
+  col.names = c("Month", "Borough", "Electricity (kWh)"),
+  caption = "Long-Format Electricity Consumption Dataset"
+)
+```
+
+### Transformation Validation
+
+```{r}
+# Compare the number of rows
+transformation_summary <- tibble(
+  dataset = c(
+    "Monthly Aggregated Data",
+    "Wide-Format Data",
+    "Long-Format Data"
+  ),
+  observations = c(
+    nrow(monthly_consumption),
+    nrow(nycha_wide),
+    nrow(nycha_long)
+  )
+)
+
+knitr::kable(
+  transformation_summary,
+  col.names = c("Dataset", "Records"),
+  caption = "Wide-to-Long Transformation Summary"
+)
+
+# Verify that electricity consumption totals are preserved
+validation <- tibble(
+  original_total_kwh = sum(monthly_consumption$total_kwh),
+  transformed_total_kwh = sum(nycha_long$total_kwh, na.rm = TRUE)
+) %>%
+  mutate(
+    difference_kwh = original_total_kwh - transformed_total_kwh
+  )
+
+knitr::kable(
+  validation,
+  col.names = c("Original (kWh)", "After Transformation (kWh)", "Difference (kWh)"),
+  caption = "Electricity Consumption Validation"
+)
+```
+
+### Transformation Summary
+
+Each row in the long table represents one borough in one month.
+
+Both tables contain the same electricity totals.
+
+The validation found a difference of 0 kWh.
+
+## Business Question 1: Electricity Consumption by Borough and Over Time
+
+**Research Question:** How does electricity consumption vary across the five New York City boroughs and over time?
+
+To answer this question, I used the transformed long-format dataset to compare total and average monthly electricity consumption across the five boroughs. I also examined monthly consumption patterns to identify differences over time.
+
+### Total and Average Electricity Consumption by Borough
+
+```{r}
+
+# Calculate total and average monthly consumption by borough
+borough_consumption <- nycha_long %>%
+  group_by(borough) %>%
+  summarise(
+    total_consumption_kwh = sum(total_kwh, na.rm = TRUE),
+    average_monthly_kwh = mean(total_kwh, na.rm = TRUE),
+    months = sum(!is.na(total_kwh)),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_consumption_kwh))
+
+# Display results
+knitr::kable(
+  borough_consumption,
+  digits = 2,
+  col.names = c("Borough", "Total Electricity (kWh)", "Monthly Average (kWh)", "Months"),
+  caption = "Total and Average Monthly Electricity Consumption by Borough"
+)
+
+```
+
+### Visualization 1: Total Electricity Consumption by Borough
+
+```{r}
+# Create a bar chart comparing electricity consumption
+ggplot(
+  borough_consumption,
+  aes(
+    x = reorder(borough, total_consumption_kwh),
+    y = total_consumption_kwh / 1e9,
+    fill = borough
+  )
+) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    title = "Electricity Use by Borough",
+    x = "Borough",
+    y = "Electricity (billion kWh)"
+  ) +
+  theme_minimal()
+```
+
+### Monthly Electricity Consumption Trends
+
+The next visualization examines how electricity consumption changes over time. Monthly consumption values are displayed separately for each borough.
+
+```{r}
+# Convert revenue month into a date
+nycha_trends <- nycha_long %>%
+  mutate(
+    month_date = as.Date(paste0(revenue_month, "-01"))
+  )
+
+# Create a monthly consumption line chart
+ggplot(
+  nycha_trends,
+  aes(
+    x = month_date,
+    y = total_kwh / 1e6,
+    color = borough
+  )
+) +
+  geom_line(linewidth = 0.7, na.rm = TRUE) +
+  labs(
+    title = "Monthly Electricity Use",
+    x = "Year",
+    y = "Electricity (million kWh)",
+    color = "Borough"
+  ) +
+  theme_minimal()
+```
+
+### Interpretation of Business Question 1
+
+Brooklyn had the highest electricity use, about 5.43 billion kWh. Manhattan was next, followed by the Bronx. Queens and Staten Island used less electricity.
+
+The monthly chart shows how electricity use changed over time. Differences may be related to the number and size of NYCHA buildings in each borough.
+
+## Business Question 2: Electricity Consumption and Electricity Cost
+
+**Research Question:** What is the relationship between electricity consumption and electricity cost?
+
+To answer this question, I examined the relationship between electricity consumption, measured in kilowatt-hours (kWh), and electricity charges, measured in US dollars.
+
+I aggregated the cleaned data by month and borough to compare monthly electricity consumption with monthly electricity costs. This approach helps determine whether higher electricity consumption is associated with higher charges.
+
+### Monthly Electricity Consumption and Cost
+
+```{r}
+# Calculate monthly electricity consumption and charges by borough
+monthly_cost <- nycha_analysis %>%
+  group_by(revenue_month, borough) %>%
+  summarise(
+    total_consumption_kwh = sum(consumption_kwh, na.rm = TRUE),
+    total_cost_usd = sum(current_charges, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(revenue_month, borough)
+
+# Display the first ten observations
+knitr::kable(
+  head(monthly_cost, 10),
+  digits = 2,
+  col.names = c("Month", "Borough", "Electricity (kWh)", "Cost (USD)"),
+  caption = "Monthly Electricity Consumption and Cost by Borough"
+)
+```
+
+### Correlation Analysis
+
+Pearson's correlation coefficient is used to measure the strength and direction of the linear relationship between electricity consumption and electricity cost.
+
+A positive correlation indicates that higher consumption tends to be associated with higher electricity charges. However, correlation does not establish causation.
+
+```{r}
+# Calculate the correlation between consumption and cost
+cost_correlation <- monthly_cost %>%
+  summarise(
+    correlation = cor(
+      total_consumption_kwh,
+      total_cost_usd,
+      use = "complete.obs"
+    )
+  )
+
+knitr::kable(
+  cost_correlation,
+  digits = 4,
+  col.names = c("Correlation"),
+  caption = "Correlation Between Electricity Consumption and Cost"
+)
+```
+
+### Visualization 3: Electricity Consumption vs. Electricity Cost
+
+```{r}
+# Create a scatter plot comparing consumption and cost
+ggplot(
+  monthly_cost,
+  aes(
+    x = total_consumption_kwh / 1e6,
+    y = total_cost_usd / 1e6,
+    color = borough
+  )
+) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(
+    method = "lm",
+    se = FALSE,
+    color = "black"
+  ) +
+  labs(
+    title = "Electricity Use and Cost",
+    x = "Electricity (million kWh)",
+    y = "Cost (million USD)",
+    color = "Borough"
+  ) +
+  theme_minimal()
+```
+
+### Electricity Cost Summary by Borough
+
+```{r}
+# Calculate total electricity charges by borough
+borough_cost <- monthly_cost %>%
+  group_by(borough) %>%
+  summarise(
+    total_consumption_kwh = sum(total_consumption_kwh),
+    total_charges_usd = sum(total_cost_usd),
+    average_monthly_cost_usd = mean(total_cost_usd),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_charges_usd))
+
+knitr::kable(
+  borough_cost,
+  digits = 2,
+  col.names = c("Borough", "Total Electricity (kWh)", "Total Cost (USD)", "Monthly Average Cost (USD)"),
+  caption = "Electricity Consumption and Cost Summary by Borough"
+)
+```
+
+### Interpretation of Business Question 2
+
+Electricity use and cost had a strong positive relationship. The correlation was 0.9319, meaning higher electricity use was generally linked to higher costs.
+
+Brooklyn had the highest total electricity cost, about $767.55 million. Its average monthly cost was about $4.65 million.
+
+Electricity bills also depend on utility rates and other charges, so correlation does not prove causation.
+
+## Conclusions
+
+This project studied NYCHA electricity use and cost in New York City. The original dataset had 553,666 records. After cleaning, 547,893 records were used.
+
+Brooklyn had the highest electricity use, followed by Manhattan and the Bronx. Electricity use and cost were strongly related, with a correlation of 0.9319.
+
+This project shows how R can help clean, organize, and understand real-world data.
+
+### Limitations
+
+The analysis does not include building size, occupancy, or weather. These factors may affect electricity use, so the results do not measure building efficiency.
+
 ## AI Use
 
-ChatGPT was used to help interpret the assignment requirements, organize the planned approach, improve the English writing, and provide guidance for the R code. I downloaded the original data from the official source and will run, review, and verify the data transformations, analysis, visualizations, and final conclusions.
+I used ChatGPT to help organize the report, improve my English, and review the R code. I downloaded the original data from NYC Open Data and checked the tables and results.
