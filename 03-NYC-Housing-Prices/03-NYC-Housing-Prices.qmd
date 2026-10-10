@@ -31,14 +31,14 @@ The objective is to organize the housing price information into a tidy structure
 
 ## Data Source
 
-**Dataset:** NYC Housing Average Prices  
-**Original file:** NYC_Housing_Average_Prices_Wide.csv  
-**File format:** CSV  
+**Dataset:** NYC Housing Average Prices\
+**Original file:** NYC_Housing_Average_Prices_Wide.csv\
+**File format:** CSV\
 **Dataset category:** Housing and Real Estate Data
 
 The original CSV file is stored in:
 
-```text
+``` text
 Data /NYC_Housing_Average_Prices_Wide.csv
 ```
 
@@ -60,8 +60,8 @@ The transformed dataset will organize the housing price observations into variab
 
 This analysis will address two questions:
 
-1. How do average housing prices vary across the five New York City boroughs?
-2. Which New York City borough has experienced the greatest change in average housing prices over time?
+1.  How do average housing prices vary across the five New York City boroughs?
+2.  Which New York City borough has experienced the greatest change in average housing prices over time?
 
 ### Planned Analysis
 
@@ -82,6 +82,376 @@ The analysis will help identify differences in average housing prices across New
 If the dataset contains multiple time periods, the analysis will also examine how housing prices have changed over time and which borough experienced the greatest change.
 
 The results will demonstrate how transforming a wide-format dataset into a tidy structure makes housing price data easier to organize, compare, and analyze.
+
+## Data Loading and Initial Exploration
+
+The first step is to load the NYC Housing Average Prices dataset and review its structure.
+
+This helps identify the available columns, borough names, housing price measurements, time periods, and missing values.
+
+```{r}
+# Load the required packages
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Import the original dataset
+housing <- read_csv(
+  "Data /NYC_Housing_Average_Prices_Wide.csv",
+  show_col_types = FALSE
+)
+
+# Check the number of rows and columns
+dim(housing)
+
+# Display column names
+names(housing)
+
+# Preview the first 10 rows
+head(housing, 10)
+
+# Check column types and dataset structure
+glimpse(housing)
+```
+
+### Initial Dataset Summary
+
+The dataset contains housing price information for New York City.
+
+The initial exploration helps identify the available geographic areas, price variables, and time periods.
+
+The next step is to review missing values and prepare the dataset for cleaning and transformation.
+
+## Missing Values Analysis
+
+The first step is to check for missing housing price values.
+
+This helps identify whether the dataset contains incomplete records before the data is transformed.
+
+```{r}
+# Check missing values in the five borough columns
+missing_summary <- housing %>%
+  select(Bronx, Brooklyn, Manhattan, Queens, `Staten Island`) %>%
+  summarise(
+    across(
+      everything(),
+      list(
+        Missing = ~sum(is.na(.x)),
+        Available = ~sum(!is.na(.x))
+      )
+    )
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = c("Borough", ".value"),
+    names_pattern = "^(.*)_(Missing|Available)$"
+  ) %>%
+  mutate(
+    Missing_Percent = round(
+      100 * Missing / (Missing + Available), 1
+    )
+  )
+
+knitr::kable(
+  missing_summary,
+  col.names = c(
+    "Borough",
+    "Missing Values",
+    "Available Values",
+    "Missing (%)"
+  ),
+  caption = "Missing Housing Price Values by Borough"
+)
+```
+
+Missing values are not replaced with zero. Only available housing price observations are used in the analysis.
+
+## Data Cleaning and Transformation
+
+The original dataset stores the five boroughs in separate columns.
+
+To make the data easier to analyze, the borough columns are transformed from wide to long format using `pivot_longer()`.
+
+```{r}
+# Create a clean dataset
+housing_clean <- housing %>%
+  select(
+    Year, Month,
+    Bronx, Brooklyn, Manhattan,
+    Queens, `Staten Island`
+  ) %>%
+  mutate(
+    Year = as.integer(Year),
+    Month = factor(
+      Month,
+      levels = month.abb,
+      ordered = TRUE
+    )
+  )
+
+# Transform wide data into long format
+housing_long <- housing_clean %>%
+  pivot_longer(
+    cols = c(
+      Bronx, Brooklyn, Manhattan,
+      Queens, `Staten Island`
+    ),
+    names_to = "Borough",
+    values_to = "Average_Price"
+  ) %>%
+  filter(!is.na(Average_Price)) %>%
+  mutate(
+    Date = as.Date(
+      paste(Year, as.integer(Month), "01", sep = "-")
+    )
+  )
+
+# Display the transformed data
+head(housing_long, 10)
+
+# Summarize the transformation
+transformation_summary <- tibble(
+  Step = c(
+    "Original Rows",
+    "Original Columns",
+    "Long Format Observations"
+  ),
+  Count = c(
+    nrow(housing),
+    ncol(housing),
+    nrow(housing_long)
+  )
+)
+
+knitr::kable(
+  transformation_summary,
+  col.names = c("Step", "Count"),
+  caption = "Housing Data Transformation Summary"
+)
+```
+
+The transformed dataset contains one row for each borough and month.
+
+This structure makes it easier to compare housing prices across locations and time periods.
+
+## Transformation Validation
+
+The transformation is checked to confirm that the available housing price observations were preserved.
+
+```{r}
+# Count available prices before transformation
+original_count <- housing_clean %>%
+  select(
+    Bronx, Brooklyn, Manhattan,
+    Queens, `Staten Island`
+  ) %>%
+  summarise(
+    across(everything(), ~sum(!is.na(.x)))
+  ) %>%
+  unlist(use.names = FALSE) %>%
+  sum()
+
+# Count observations after transformation
+long_count <- nrow(housing_long)
+
+validation <- tibble(
+  Dataset = c(
+    "Original Wide Data",
+    "Transformed Long Data"
+  ),
+  Observations = c(original_count, long_count)
+)
+
+knitr::kable(
+  validation,
+  col.names = c("Dataset", "Observations"),
+  caption = "Transformation Validation"
+)
+
+# Confirm that both counts match
+stopifnot(original_count == long_count)
+```
+
+The validation confirms whether the original and transformed datasets contain the same number of available housing price observations.
+
+## Summary Statistics
+
+The following table summarizes average housing prices for each borough.
+
+It includes the number of observations, average price, minimum price, and maximum price.
+
+```{r}
+# Calculate summary statistics by borough
+housing_summary <- housing_long %>%
+  group_by(Borough) %>%
+  summarise(
+    Observations = n(),
+    Average_Price = mean(Average_Price),
+    Minimum_Price = min(Average_Price),
+    Maximum_Price = max(Average_Price),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Average_Price))
+
+knitr::kable(
+  housing_summary,
+  col.names = c(
+    "Borough",
+    "Observations",
+    "Average Price",
+    "Minimum Price",
+    "Maximum Price"
+  ),
+  digits = 2,
+  caption = "Housing Price Summary Statistics by Borough"
+)
+```
+
+These statistics help identify which boroughs have higher or lower average housing prices during the available period.
+
+## Housing Price Analysis
+
+### Question 1: How do average housing prices vary across the five New York City boroughs?
+
+The first business question compares average housing prices across the five boroughs.
+
+```{r}
+# Compare average prices across boroughs
+borough_prices <- housing_long %>%
+  group_by(Borough) %>%
+  summarise(
+    Average_Price = mean(Average_Price),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Average_Price))
+
+knitr::kable(
+  borough_prices,
+  col.names = c(
+    "Borough",
+    "Average Housing Price"
+  ),
+  digits = 2,
+  caption = "Average Housing Prices by Borough"
+)
+```
+
+```{r}
+# Visualize average housing prices
+ggplot(
+  borough_prices,
+  aes(
+    x = reorder(Borough, Average_Price),
+    y = Average_Price
+  )
+) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Housing Prices by NYC Borough",
+    x = "Borough",
+    y = "Average Housing Price"
+  ) +
+  theme_minimal()
+```
+
+The table and chart show differences in average housing prices across the five boroughs.
+
+### Question 2: Which New York City borough has experienced the greatest change in average housing prices over time?
+
+The second business question examines how housing prices changed between the first and last available months.
+
+The percentage change is calculated using the first and last recorded prices for each borough.
+
+```{r}
+# Calculate the change in housing prices
+price_change <- housing_long %>%
+  arrange(Borough, Date) %>%
+  group_by(Borough) %>%
+  summarise(
+    First_Date = first(Date),
+    Last_Date = last(Date),
+    First_Price = first(Average_Price),
+    Last_Price = last(Average_Price),
+    Price_Change = Last_Price - First_Price,
+    Percent_Change = if (
+      first(Average_Price) != 0
+    ) {
+      100 * (
+        last(Average_Price) - first(Average_Price)
+      ) / first(Average_Price)
+    } else {
+      NA_real_
+    },
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Percent_Change))
+
+knitr::kable(
+  price_change,
+  col.names = c(
+    "Borough",
+    "First Date",
+    "Last Date",
+    "First Price",
+    "Last Price",
+    "Price Change",
+    "Change (%)"
+  ),
+  digits = 2,
+  caption = "Housing Price Changes by Borough"
+)
+```
+
+```{r}
+# Visualize housing price trends
+ggplot(
+  housing_long,
+  aes(
+    x = Date,
+    y = Average_Price,
+    color = Borough
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  labs(
+    title = "Monthly Housing Price Trends by Borough",
+    x = "Month",
+    y = "Average Housing Price",
+    color = "Borough"
+  ) +
+  theme_minimal()
+```
+
+The chart shows how average housing prices changed over time in each borough.
+
+The percentage change table helps identify which borough experienced the greatest increase or decrease during the available period.
+
+## Key Findings
+
+The analysis provides two main findings based on the business questions.
+
+**Question 1: Housing Prices by Borough**
+
+The borough with the highest average housing price is `r borough_prices$Borough[1]`, with an average value of `r round(borough_prices$Average_Price[1], 2)`.
+
+**Question 2: Housing Price Changes Over Time**
+
+The borough with the greatest percentage increase is `r price_change$Borough[1]`, with a change of `r round(price_change$Percent_Change[1], 2)`% between the first and last available months.
+
+These findings are based on the recorded housing prices in the dataset.
+
+## Conclusion
+
+The NYC Housing Average Prices dataset provides information about housing prices across the five New York City boroughs.
+
+The analysis compares average housing prices by borough and examines changes over time.
+
+Transforming the dataset from wide to long format made it easier to calculate summary statistics and create visualizations.
+
+The results help identify differences in housing prices and show which borough experienced the greatest percentage increase during the available period.
 
 ## AI Use
 
