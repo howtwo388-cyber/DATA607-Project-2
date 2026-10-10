@@ -39,7 +39,7 @@ The objective is to organize the water chemistry measurements into a tidy struct
 The original CSV file is stored in:
 
 ``` text
-Data/Chemistry_Data_Wide_20250715.csv
+Data /Chemistry_Data_Wide_20250715.csv
 ```
 
 The original publisher and official dataset webpage will be added after verifying the source.
@@ -77,6 +77,333 @@ The analysis will include:
 The analysis will show how water chemistry measurements differ across the available sampling locations and identify which parameters have the greatest variation.
 
 It will also demonstrate how transforming a wide-format dataset into a tidy structure makes environmental data easier to organize, compare, and analyze.
+
+## Data Loading and Initial Exploration
+
+The first step is to load the Water Quality dataset and review its structure.
+
+This helps identify the available columns, water chemistry measurements, and missing values.
+
+```{r}
+# Load the required packages
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Import the original dataset
+water <- read_csv(
+  "Data /Chemistry_Data_Wide_20250715.csv",
+  show_col_types = FALSE
+)
+
+# Check the number of rows and columns
+dim(water)
+
+# Display column names
+names(water)
+
+# Preview the data
+head(water, 5)
+
+# Check data types
+glimpse(water)
+```
+
+### Initial Dataset Summary
+
+The dataset contains water chemistry measurements.
+
+The next step is to identify the sampling locations and the chemistry parameters needed for the analysis.
+
+## Missing Values Analysis
+
+Some measurements are missing. The table shows the number of available and missing values for the five selected parameters.
+
+```{r}
+# Review missing measurements before transformation
+missing_summary <- water %>%
+  select(pH_Lab, TN_mgL, NH3_mgL, TotDissN_mgL, TP_ugL) %>%
+  summarise(across(everything(),
+                   list(Missing = ~sum(is.na(.x)),
+                        Available = ~sum(!is.na(.x))))) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = c("Parameter", ".value"),
+    names_pattern = "^(.*)_(Missing|Available)$"
+  ) %>%
+  mutate(Missing_Percent = round(100 * Missing / (Missing + Available), 1))
+
+knitr::kable(
+  missing_summary,
+  col.names = c("Parameter", "Missing Values", "Available Values", "Missing (%)"),
+  caption = "Missing Values in Selected Water Chemistry Parameters"
+)
+```
+
+Missing measurements were not replaced with zero. The analysis uses available recorded values only. Some laboratory flags indicate values below reporting limits, which should be interpreted carefully.
+
+## Data Cleaning and Transformation
+
+The data was cleaned and transformed from wide to long format. Missing measurements were excluded from the analysis.
+
+```{r}
+# Select water quality measurements
+water_clean <- water %>%
+  select(
+    SiteName, SiteType, EventDate,
+    pH_Lab, TN_mgL, NH3_mgL,
+    TotDissN_mgL, TP_ugL
+  )
+
+# Transform wide data into long format
+water_long <- water_clean %>%
+  pivot_longer(
+    cols = c(
+      pH_Lab, TN_mgL, NH3_mgL,
+      TotDissN_mgL, TP_ugL
+    ),
+    names_to = "Parameter",
+    values_to = "Value"
+  ) %>%
+  filter(!is.na(Value))
+
+# Summary of the transformation
+transformation_summary <- tibble(
+  Step = c("Original Rows", "Original Columns",
+           "Long Format Measurements"),
+  Count = c(nrow(water), ncol(water), nrow(water_long))
+)
+
+knitr::kable(
+  transformation_summary,
+  col.names = c("Step", "Count"),
+  caption = "Data Transformation Summary"
+)
+```
+
+## Transformation Validation
+
+The transformation was checked to confirm that the available measurements were preserved.
+
+```{r}
+# Count measurements before transformation
+original_count <- water_clean %>%
+  select(
+    pH_Lab, TN_mgL, NH3_mgL,
+    TotDissN_mgL, TP_ugL
+  ) %>%
+  summarise(across(everything(), ~sum(!is.na(.x)))) %>%
+  unlist(use.names = FALSE) %>%
+  sum()
+
+# Count measurements after transformation
+long_count <- nrow(water_long)
+
+validation <- tibble(
+  Dataset = c("Original Wide Data", "Transformed Long Data"),
+  Measurements = c(original_count, long_count)
+)
+
+knitr::kable(
+  validation,
+  col.names = c("Dataset", "Measurements"),
+  caption = "Transformation Validation"
+)
+
+stopifnot(original_count == long_count)
+```
+
+Both datasets contain the same number of available measurements. This confirms that no measurements were lost during transformation.
+
+## Summary Statistics
+
+This table summarizes the available water chemistry measurements.
+
+```{r}
+# Calculate summary statistics
+water_summary <- water_long %>%
+  group_by(Parameter) %>%
+  summarise(
+    Samples = n(),
+    Average = mean(Value),
+    Minimum = min(Value),
+    Maximum = max(Value),
+    .groups = "drop"
+  )
+
+knitr::kable(
+  water_summary,
+  col.names = c(
+    "Parameter",
+    "Samples",
+    "Average",
+    "Minimum",
+    "Maximum"
+  ),
+  digits = 2,
+  caption = "Water Quality Summary Statistics"
+)
+```
+
+## Water Quality Analysis
+
+### Question 1: How do water chemistry measurements vary across sampling locations?
+
+The following analysis compares average nitrogen levels across sampling locations.
+
+```{r}
+# Average nitrogen by sampling location
+nitrogen_by_site <- water_long %>%
+  filter(Parameter == "TN_mgL") %>%
+  group_by(SiteName) %>%
+  summarise(
+    Samples = n(),
+    Average_Nitrogen = mean(Value),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Average_Nitrogen))
+
+knitr::kable(
+  head(nitrogen_by_site, 10),
+  col.names = c(
+    "Sampling Location",
+    "Samples",
+    "Average Nitrogen (mg/L)"
+  ),
+  digits = 3,
+  caption = "Top 10 Locations by Average Nitrogen"
+)
+```
+
+```{r}
+# Plot average nitrogen at the top 10 locations
+ggplot(
+  head(nitrogen_by_site, 10),
+  aes(
+    x = reorder(SiteName, Average_Nitrogen),
+    y = Average_Nitrogen
+  )
+) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Nitrogen by Sampling Location",
+    x = "Sampling Location",
+    y = "Average Nitrogen (mg/L)"
+  ) +
+  theme_minimal()
+```
+
+Average nitrogen levels differ across sampling locations. The table and chart show the locations with the highest recorded averages.
+
+### Question 2: Which water chemistry parameters show the greatest variation?
+
+The analysis uses the coefficient of variation to compare selected chemical concentrations measured on different scales. pH is excluded because it uses a logarithmic scale.
+
+```{r}
+# Calculate variation by parameter
+parameter_variation <- water_long %>%
+  filter(Parameter != "pH_Lab") %>%
+  group_by(Parameter) %>%
+  summarise(
+    Samples = n(),
+    Average = mean(Value),
+    Standard_Deviation = sd(Value),
+    CV_Percent = if (
+      is.finite(mean(Value)) &&
+      abs(mean(Value)) > .Machine$double.eps
+    ) {
+      100 * sd(Value) / abs(mean(Value))
+    } else {
+      NA_real_
+    },
+    .groups = "drop"
+  ) %>%
+  arrange(desc(CV_Percent))
+
+knitr::kable(
+  parameter_variation,
+  col.names = c(
+    "Parameter",
+    "Samples",
+    "Average",
+    "Standard Deviation",
+    "Variation (%)"
+  ),
+  digits = 2,
+  caption = "Variation in Water Chemistry Measurements"
+)
+```
+
+```{r}
+# Compare relative variation
+ggplot(
+  filter(parameter_variation, !is.na(CV_Percent)),
+  aes(
+    x = reorder(Parameter, CV_Percent),
+    y = CV_Percent
+  )
+) +
+  geom_col(fill = "darkcyan") +
+  coord_flip() +
+  labs(
+    title = "Variation by Water Quality Parameter",
+    x = "Water Quality Parameter",
+    y = "Coefficient of Variation (%)"
+  ) +
+  theme_minimal()
+```
+
+Parameters with higher variation percentages have greater relative differences among their recorded measurements.
+
+### Water pH Distribution
+
+```{r}
+# Distribution of pH measurements
+ggplot(
+  filter(water_long, Parameter == "pH_Lab"),
+  aes(x = Value)
+) +
+  geom_histogram(
+    bins = 25,
+    fill = "steelblue",
+    color = "white"
+  ) +
+  labs(
+    title = "Distribution of Water pH",
+    x = "pH",
+    y = "Number of Measurements"
+  ) +
+  theme_minimal()
+```
+
+This chart shows how the recorded pH values are distributed across the dataset.
+
+## Key Findings
+
+The analysis provides two main findings based on the business questions.
+
+**Question 1: Water Quality by Location**
+
+Total nitrogen levels vary across sampling locations. Kroma Kill has the highest average nitrogen level at 4.540 mg/L, followed by Mill Creek Confluence at 4.137 mg/L.
+
+**Question 2: Variation in Water Chemistry**
+
+Total phosphorus shows the greatest relative variation at 262.08%, followed by total nitrogen at 206.44%.
+
+These results are based on the available measurements. Missing values were excluded from the analysis.
+
+## Conclusion
+
+The Water Quality dataset contains measurements from different sampling locations.
+
+The analysis shows how nitrogen levels vary by location and compares the relative variation of selected chemistry parameters.
+
+Transforming the data from wide to long format made the measurements easier to summarize and visualize.
+
+The results describe the available samples and do not establish whether a location meets water quality standards.
+
 
 ## AI Use
 
