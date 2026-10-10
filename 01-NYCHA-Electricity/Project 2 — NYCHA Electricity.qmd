@@ -29,14 +29,14 @@ Discussion 5A was used to identify and describe the dataset. The actual data use
 
 ## Data Source
 
-**Dataset:** Electric Consumption and Cost (2010–Sep 2025)  
-**Publisher:** New York City Housing Authority  
-**Official source:** NYC Open Data  
+**Dataset:** Electric Consumption and Cost (2010–Sep 2025)\
+**Publisher:** New York City Housing Authority\
+**Official source:** NYC Open Data\
 **Dataset webpage:** [Electric Consumption and Cost](https://data.cityofnewyork.us/d/jr24-e7cr)
 
 The original CSV file is stored in:
 
-```text
+``` text
 Data /NYCHA_Electric_Consumption_And_Cost.csv
 ```
 
@@ -52,8 +52,8 @@ The selected data will be organized into a wide-format table by month and boroug
 
 This analysis will address two questions:
 
-1. How does electricity consumption vary across the five New York City boroughs and over time?
-2. What is the relationship between electricity consumption and electricity cost?
+1.  How does electricity consumption vary across the five New York City boroughs and over time?
+2.  What is the relationship between electricity consumption and electricity cost?
 
 ### Planned Analysis
 
@@ -107,7 +107,6 @@ glimpse(nycha)
 The original NYCHA dataset contains 553,666 observations and 27 variables. These records include information about housing developments, electricity billing periods, electricity consumption, and associated costs.
 
 This check helped identify the columns needed for the analysis.
-
 
 ## Data Cleaning and Preparation
 
@@ -547,11 +546,29 @@ knitr::kable(
 
 Electricity use and cost had a strong positive relationship. The correlation was 0.9319, meaning higher electricity use was generally linked to higher costs.
 
-Brooklyn had the highest total electricity cost, about $767.55 million. Its average monthly cost was about $4.65 million.
+Brooklyn had the highest total electricity cost, about \$767.55 million. Its average monthly cost was about \$4.65 million.
 
 Electricity bills also depend on utility rates and other charges, so correlation does not prove causation.
 
-## Conclusions
+## Key Findings
+
+The analysis provides two main findings based on the business questions.
+
+**Question 1: Electricity Consumption by Borough and Over Time**
+
+Brooklyn had the highest electricity consumption, at approximately
+5.43 billion kWh. Manhattan and the Bronx followed. Electricity
+consumption also changed over time across the five boroughs.
+
+**Question 2: Electricity Consumption and Electricity Cost**
+
+Electricity consumption and cost had a strong positive relationship,
+with a correlation of 0.9319. Higher electricity consumption was
+generally associated with higher electricity charges.
+
+These findings are based on the cleaned and transformed NYCHA dataset.
+
+## Conclusion
 
 This project studied NYCHA electricity use and cost in New York City. The original dataset had 553,666 records. After cleaning, 547,893 records were used.
 
