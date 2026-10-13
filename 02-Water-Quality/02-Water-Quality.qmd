@@ -42,7 +42,7 @@ The original CSV file is stored in:
 Data /Chemistry_Data_Wide_20250715.csv
 ```
 
-The original publisher and official dataset webpage will be added after verifying the source.
+The analysis uses the original Water Quality chemistry dataset, stored as Chemistry_Data_Wide_20250715.csv. The dataset contains water chemistry measurements collected at different sampling locations.
 
 ## Approach
 
@@ -403,6 +403,13 @@ The analysis shows how nitrogen levels vary by location and compares the relativ
 Transforming the data from wide to long format made the measurements easier to summarize and visualize.
 
 The results describe the available samples and do not establish whether a location meets water quality standards.
+
+## Video Presentation
+
+This video presents my Water Quality Analysis for DATA 607 Project 2. It explains the data cleaning and transformation process, answers the two research questions, and summarizes the main findings and conclusions.
+
+**YouTube Presentation:**  
+https://youtu.be/F96TWdD-zGE
 
 ## AI Use
 
