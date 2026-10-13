@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Patricio Romero">
-<meta name="dcterms.date" content="2026-10-10">
+<meta name="dcterms.date" content="2026-10-12">
 
 <title>Project 2 — NYCHA Electricity</title>
 <style>
@@ -134,6 +134,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul></li>
+  <li><a href="#video-presentation" id="toc-video-presentation" class="nav-link" data-scroll-target="#video-presentation">Video Presentation</a></li>
   <li><a href="#ai-use" id="toc-ai-use" class="nav-link" data-scroll-target="#ai-use">AI Use</a></li>
   </ul>
 </nav>
@@ -159,7 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 10, 2026</p>
+      <p class="date">October 12, 2026</p>
     </div>
   </div>
   
@@ -195,7 +196,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="approach">Approach</h2>
 <p>The purpose of this analysis is to compare electricity consumption across the five New York City boroughs and examine how consumption changes over time. The analysis will also evaluate the relationship between electricity consumption and electricity cost.</p>
 <p>The original data will be imported from the CSV file downloaded from NYC Open Data. I will use <code>dplyr</code> to select the required variables, standardize column names, convert consumption and cost fields to numeric values, and address missing or inconsistent observations.</p>
-<p>The selected data will be organized into a wide-format table by month and borough. I will then use <code>pivot_longer()</code> from the <code>tidyr</code> package to transform the borough columns into a tidy structure. All analysis and visualizations will use the transformed dataset.</p>
+<p>The selected data will be organized into a wide-format table by month and borough. I will then use <code>pivot_longer()</code> from the <code>tidyr</code> package to transform the borough columns into a tidy structure. The transformed dataset will be used to analyze electricity consumption across boroughs and over time. The cleaned dataset will also be used to calculate monthly electricity costs and examine their relationship with electricity consumption.</p>
 <section id="business-questions" class="level3">
 <h3 class="anchored" data-anchor-id="business-questions">Business Questions</h3>
 <p>This analysis will address two questions:</p>
@@ -805,16 +806,17 @@ $ kwh_charges      &lt;dbl&gt; 7387.97, 6607.87, 5919.55, 6057.22, 5598.34, 7112
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>revenue_month,</span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"borough"</span>,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"total_kwh"</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(revenue_month, borough)</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the transformed dataset</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(nycha_long, <span class="dv">10</span>),</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Month"</span>, <span class="st">"Borough"</span>, <span class="st">"Electricity (kWh)"</span>),</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Long-Format Electricity Consumption Dataset"</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"total_kwh"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_drop_na =</span> <span class="cn">TRUE</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(revenue_month, borough)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the transformed dataset</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(nycha_long, <span class="dv">10</span>),</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Month"</span>, <span class="st">"Borough"</span>, <span class="st">"Electricity (kWh)"</span>),</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Long-Format Electricity Consumption Dataset"</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1413,6 +1415,12 @@ $ kwh_charges      &lt;dbl&gt; 7387.97, 6607.87, 5919.55, 6057.22, 5598.34, 7112
 <h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
 <p>The analysis does not include building size, occupancy, or weather. These factors may affect electricity use, so the results do not measure building efficiency.</p>
 </section>
+</section>
+<section id="video-presentation" class="level2">
+<h2 class="anchored" data-anchor-id="video-presentation">Video Presentation</h2>
+<p>This video presents my NYCHA Electricity Consumption and Cost analysis for DATA 607 Project 2. It briefly explains the data cleaning and transformation process, answers the two business questions, and summarizes the main findings, conclusions, and recommendations.</p>
+<p><strong>YouTube Presentation:</strong><br>
+https://youtu.be/kY-j4vY_Za8</p>
 </section>
 <section id="ai-use" class="level2">
 <h2 class="anchored" data-anchor-id="ai-use">AI Use</h2>

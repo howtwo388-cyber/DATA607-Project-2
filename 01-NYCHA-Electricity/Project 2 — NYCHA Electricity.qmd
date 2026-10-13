@@ -46,7 +46,7 @@ The purpose of this analysis is to compare electricity consumption across the fi
 
 The original data will be imported from the CSV file downloaded from NYC Open Data. I will use `dplyr` to select the required variables, standardize column names, convert consumption and cost fields to numeric values, and address missing or inconsistent observations.
 
-The selected data will be organized into a wide-format table by month and borough. I will then use `pivot_longer()` from the `tidyr` package to transform the borough columns into a tidy structure. All analysis and visualizations will use the transformed dataset.
+The selected data will be organized into a wide-format table by month and borough. I will then use `pivot_longer()` from the `tidyr` package to transform the borough columns into a tidy structure. The transformed dataset will be used to analyze electricity consumption across boroughs and over time. The cleaned dataset will also be used to calculate monthly electricity costs and examine their relationship with electricity consumption.
 
 ### Business Questions
 
@@ -290,7 +290,8 @@ nycha_long <- nycha_wide %>%
   pivot_longer(
     cols = -revenue_month,
     names_to = "borough",
-    values_to = "total_kwh"
+    values_to = "total_kwh",
+    values_drop_na = TRUE
   ) %>%
   arrange(revenue_month, borough)
 
@@ -579,6 +580,13 @@ This project shows how R can help clean, organize, and understand real-world dat
 ### Limitations
 
 The analysis does not include building size, occupancy, or weather. These factors may affect electricity use, so the results do not measure building efficiency.
+
+## Video Presentation
+
+This video presents my NYCHA Electricity Consumption and Cost analysis for DATA 607 Project 2. It briefly explains the data cleaning and transformation process, answers the two business questions, and summarizes the main findings, conclusions, and recommendations.
+
+**YouTube Presentation:**  
+https://youtu.be/kY-j4vY_Za8
 
 ## AI Use
 
